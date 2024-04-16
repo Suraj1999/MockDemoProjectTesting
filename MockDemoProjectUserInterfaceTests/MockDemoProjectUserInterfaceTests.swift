@@ -12,9 +12,11 @@
     final class when_user_clicks_on_login_button: XCTestCase {
         
         private var app: XCUIApplication!
+        private var loginPageObject: LoginPageObjects!
         
         override func setUp() async throws {
             app = XCUIApplication()
+            loginPageObject = LoginPageObjects(app: app)
             continueAfterFailure = false
             app.launchEnvironment = ["ENV": "TEST"]
             
@@ -24,36 +26,55 @@
             
            
             app.launch()
-            let usernameTextField = app.textFields["usernameTextField"]
+            let usernameTextField = loginPageObject.usernameTextField
             usernameTextField.tap()
             usernameTextField.typeText("")
             
-            let passwordTextField = app.textFields["passwordTextField"]
+            let passwordTextField = loginPageObject.passwordTextField
             passwordTextField.tap()
             passwordTextField.typeText("")
             
-            let loginButton = app.buttons["loginButton"]
+            let loginButton = loginPageObject.loginButton
             loginButton.tap()
             
-            let messageTextField = app.staticTexts["messageText"]
+            let messageTextField = loginPageObject.messageText
             
             XCTAssertEqual(messageTextField.label, "Required fields are missing")
             
+        }
+        
+        func test_should_display_error_message_for_invalid_credentials() {
+            
+            app.launch()
+            
+            let usernameTextField = loginPageObject.usernameTextField
+            usernameTextField.tap()
+            usernameTextField.typeText("JohnDoe")
+            
+            let passwordTextField = loginPageObject.passwordTextField
+            passwordTextField.tap()
+            passwordTextField.typeText("WrongPassword")
+            
+            let loginButton = loginPageObject.loginButton
+            loginButton.tap()
+            
+            let messageText = loginPageObject.messageText
+            XCTAssertEqual(messageText.label, "Invalid credentials")
         }
         
         func test_should_navigate_to_dashboard_page_when_authenticated() {
             
             app.launch()
             
-            let usernameTextField = app.textFields["usernameTextField"]
+            let usernameTextField = loginPageObject.usernameTextField
             usernameTextField.tap()
             usernameTextField.typeText("JohnDoe")
             
-            let passwordTextField = app.textFields["passwordTextField"]
+            let passwordTextField = loginPageObject.passwordTextField
             passwordTextField.tap()
             passwordTextField.typeText("Password")
             
-            let loginButton = app.buttons["loginButton"]
+            let loginButton = loginPageObject.loginButton
             loginButton.tap()
             
             let dashboardNavBarTitle = app.staticTexts["Dashboard"]
